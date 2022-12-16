@@ -70,6 +70,7 @@ func (r *albumRepository) GetAll(ctx context.Context) ([]*model.Album, error) {
 
 		for _, singersValue := range NewSingerRepository().singerMap {
 
+			// idが同じであれば追加
 			if int(s.SingerID) == int(singersValue.ID) {
 				albumSingers = append(albumSingers, model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
 			}
