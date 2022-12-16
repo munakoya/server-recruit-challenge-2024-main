@@ -20,6 +20,7 @@ type singerService struct {
 
 var _ SingerService = (*singerService)(nil)
 
+// 戻り値が*singerService → singerRepository → 引数をセットしてる？
 func NewSingerService(singerRepository repository.SingerRepository) *singerService {
 	return &singerService{singerRepository: singerRepository}
 }
@@ -32,6 +33,7 @@ func (s *singerService) GetSingerListService(ctx context.Context) ([]*model.Sing
 	return singers, nil
 }
 
+// GetSingerService使えそう
 func (s *singerService) GetSingerService(ctx context.Context, singerID model.SingerID) (*model.Singer, error) {
 	singer, err := s.singerRepository.Get(ctx, singerID)
 	if err != nil {

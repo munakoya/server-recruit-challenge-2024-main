@@ -1,5 +1,7 @@
 package api
 
+// ルーティング
+
 import (
 	"net/http"
 
@@ -11,10 +13,15 @@ import (
 )
 
 func NewRouter() *mux.Router {
-	singerRepo := memorydb.NewSingerRepository()
-	singerService := service.NewSingerService(singerRepo)
+	// この3つ
+	// repository → ?
+	singerRepo := memorydb.NewSingerRepository() // singerデータを代入
+	// service → ?
+	singerService := service.NewSingerService(singerRepo) // singerServiceにsingerデータがセットされる
+	// controller → ?
 	singerController := controller.NewSingerController(singerService)
 
+	// アルバムデータの初期化？
 	albumRepo := memorydb.NewAlbumRepository()
 	albumService := service.NewAlbumService(albumRepo)
 	albumController := controller.NewAlbumController(albumService)
@@ -26,7 +33,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/singers", singerController.PostSingerHandler).Methods(http.MethodPost)
 	r.HandleFunc("/singers/{id:[0-9]+}", singerController.DeleteSingerHandler).Methods(http.MethodDelete)
 
-	// ここにalbumsのルーター追加されるはず → controllerにalbums.goを追加
+	// ここにalbumsのルーティング追加されるはず
 	r.HandleFunc("/albums", albumController.GetAlbumListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/albums/{id:[0-9]+}", albumController.GetAlbumDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/albums", albumController.PostAlbumHandler).Methods(http.MethodPost)

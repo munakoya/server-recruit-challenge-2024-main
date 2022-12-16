@@ -1,13 +1,15 @@
 package middleware
 
+// サーバー立てたりとかのファイル
+
 import (
 	"log"
-	"net/http"
+	"net/http" // httpを使うパッケージ
 )
 
 type loggingWriter struct {
-	http.ResponseWriter
-	code int
+	http.ResponseWriter // サーバーからクライアントへのレスポンス？
+	code                int
 }
 
 func newLoggingWriter(w http.ResponseWriter) *loggingWriter {

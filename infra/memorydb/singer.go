@@ -11,12 +11,13 @@ import (
 
 type singerRepository struct {
 	sync.RWMutex
-	singerMap map[model.SingerID]*model.Singer // キーが SingerID、値が model.Singer のマップ
+	singerMap map[model.SingerID]*model.Singer // キーが SingerID、値が model.Singer のマップ albumはここ触るかも
 }
 
 var _ repository.SingerRepository = (*singerRepository)(nil)
 
 func NewSingerRepository() *singerRepository {
+	// SingerIDをキーにマップ作成
 	var initMap = map[model.SingerID]*model.Singer{
 		1: {ID: 1, Name: "Alice"},
 		2: {ID: 2, Name: "Bella"},
