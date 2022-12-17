@@ -79,15 +79,25 @@ func (r *albumSingerRepository) GetAll(ctx context.Context) ([]*model.AlbumSinge
 	return albumSinger, nil
 }
 
-func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*model.Album, error) {
+func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*model.AlbumSinger, error) {
 	r.RLock()
 	defer r.RUnlock()
-
 	album, ok := NewAlbumRepository().albumMap[id]
+	var singer = []model.Singer{}
+	// var albumSinger = []*model.AlbumSinger{}
+	var albumSinger *model.AlbumSinger
+
 	if !ok {
 		return nil, errors.New("not found")
 	}
-	return album, nil
+	for _, singerValue := range NewSingerRepository().singerMap {
+		if singerValue.ID == album.SingerID {
+			// idが等しいsingerデータを取り出し
+			singer = append(singer, *singerValue)
+			albumSinger = &model.AlbumSinger{ID: album.ID, Title: album.Title, Singer: *singerValue}
+		}
+	}
+	return albumSinger, nil
 }
 
 func (r *albumSingerRepository) Add(ctx context.Context, album *model.Album) error {
