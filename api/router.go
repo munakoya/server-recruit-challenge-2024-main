@@ -26,6 +26,11 @@ func NewRouter() *mux.Router {
 	albumService := service.NewAlbumService(albumRepo)
 	albumController := controller.NewAlbumController(albumService)
 
+	// アルバムデータの初期化？
+	albumSingerRepo := memorydb.NewAlbumSingerRepository()
+	albumSingerService := service.NewAlbumSingerService(albumSingerRepo)
+	albumSingerController := controller.NewAlbumSingerController(albumSingerService)
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/singers", singerController.GetSingerListHandler).Methods(http.MethodGet)
@@ -38,6 +43,12 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/albums/{id:[0-9]+}", albumController.GetAlbumDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/albums", albumController.PostAlbumHandler).Methods(http.MethodPost)
 	r.HandleFunc("/albums/{id:[0-9]+}", albumController.DeleteAlbumHandler).Methods(http.MethodDelete)
+
+	// ここにalbumsのルーティング追加されるはず
+	r.HandleFunc("/albumSingers", albumSingerController.GetAlbumSingerListHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albumSingers/{id:[0-9]+}", albumSingerController.GetAlbumSingerDetailHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albumSingers", albumSingerController.PostAlbumSingerHandler).Methods(http.MethodPost)
+	r.HandleFunc("/albumSingers/{id:[0-9]+}", albumSingerController.DeleteAlbumSingerHandler).Methods(http.MethodDelete)
 
 	r.Use(middleware.LoggingMiddleware)
 
