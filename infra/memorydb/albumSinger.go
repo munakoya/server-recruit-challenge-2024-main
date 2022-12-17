@@ -83,7 +83,7 @@ func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*mod
 	r.RLock()
 	defer r.RUnlock()
 	album, ok := NewAlbumRepository().albumMap[id]
-	var singer = []model.Singer{}
+	// var singer *model.Singer
 	// var albumSinger = []*model.AlbumSinger{}
 	var albumSinger *model.AlbumSinger
 
@@ -93,7 +93,7 @@ func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*mod
 	for _, singerValue := range NewSingerRepository().singerMap {
 		if singerValue.ID == album.SingerID {
 			// idが等しいsingerデータを取り出し
-			singer = append(singer, *singerValue)
+			// singer = &model.Singer{ID: singerValue.ID, Name: singerValue.Name}
 			albumSinger = &model.AlbumSinger{ID: album.ID, Title: album.Title, Singer: *singerValue}
 		}
 	}

@@ -39,14 +39,14 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/singers/{id:[0-9]+}", singerController.DeleteSingerHandler).Methods(http.MethodDelete)
 
 	// ここにalbumsのルーティング追加されるはず
-	r.HandleFunc("/albums", albumController.GetAlbumListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/albums/{id:[0-9]+}", albumController.GetAlbumDetailHandler).Methods(http.MethodGet)
+	// r.HandleFunc("/albums", albumController.GetAlbumListHandler).Methods(http.MethodGet)
+	// r.HandleFunc("/albums/{id:[0-9]+}", albumController.GetAlbumDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/albums", albumController.PostAlbumHandler).Methods(http.MethodPost)
 	r.HandleFunc("/albums/{id:[0-9]+}", albumController.DeleteAlbumHandler).Methods(http.MethodDelete)
 
 	// ここにalbumsのルーティング追加されるはず
-	r.HandleFunc("/albumSingers", albumSingerController.GetAlbumSingerListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/albumSingers/{id:[0-9]+}", albumSingerController.GetAlbumSingerDetailHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albums", albumSingerController.GetAlbumSingerListHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albums/{id:[0-9]+}", albumSingerController.GetAlbumSingerDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/albumSingers", albumSingerController.PostAlbumSingerHandler).Methods(http.MethodPost)
 	r.HandleFunc("/albumSingers/{id:[0-9]+}", albumSingerController.DeleteAlbumSingerHandler).Methods(http.MethodDelete)
 
