@@ -10,52 +10,32 @@ import (
 	"github.com/pulse227/server-recruit-challenge-sample/repository"
 )
 
-type albumRepository struct {
+type albumSingerRepository struct {
 	sync.RWMutex
-	albumMap map[model.AlbumID]*model.Album // キーが AlbumID 値がmodel.Album のマップ
-	// model.albumが構造体 → 実際にデータが入っているのがalbumRepository
-
+	albumSingerMap map[model.AlbumID]*model.AlbumSinger
 }
 
-// type albumSingerRepository struct {
-// 	sync.RWMutex
-// 	albumSingerMap map[model.AlbumID]*model.AlbumSinger
-// }
+// var _ repository.AlbumRepository = (*albumRepository)(nil)
 
-var _ repository.AlbumRepository = (*albumRepository)(nil)
+var _ repository.AlbumSingerRepository = (*albumSingerRepository)(nil)
 
-// var _ repository.AlbumSingerRepository = (*albumSingerRepository)(nil)
-
-// func NewAlbumSingerRepository() *albumSingerRepository {
-// 	var initMap = map[model.AlbumID]*model.AlbumSinger{}
-// 	return &albumSingerRepository{
-// 		albumSingerMap: initMap,
-// 	}
-// }
-
-// 初期化？
-func NewAlbumRepository() *albumRepository {
-	var initMap = map[model.AlbumID]*model.Album{
-		1: {ID: 1, Title: "Alice's 1st Album", SingerID: 1}, // SingerIDをもとに参照したい
-		2: {ID: 2, Title: "Alice's 2nd Album", SingerID: 1},
-		3: {ID: 3, Title: "Bella's 1st Album", SingerID: 2},
-	}
-
-	return &albumRepository{
-		albumMap: initMap,
+func NewAlbumSingerRepository() *albumSingerRepository {
+	var initMap = map[model.AlbumID]*model.AlbumSinger{}
+	return &albumSingerRepository{
+		albumSingerMap: initMap,
 	}
 }
 
 // SingerIDをもとにsinger:{~~~~}ってやりたい
 // レシーバー → albumRepositoryで登録したメソッドが使用できる
-func (r *albumRepository) GetAll(ctx context.Context) ([]*model.Album, error) {
+func (r *albumSingerRepository) GetAll(ctx context.Context) ([]*model.AlbumSinger, error) {
 	r.RLock()
 	defer r.RUnlock()
 
 	// SingerID → からsingerのデータを取得したい → albumSinger構造体作成
 	// make([]Tスライスの要素の型, スライスの長さ, スライスの容量)
 	albums := make([]*model.Album, 0, len(NewAlbumRepository().albumMap))
-	albumSinger := make([]model.AlbumSinger, 0, len(NewAlbumRepository().albumMap)) // 本当は*
+	albumSinger := make([]*model.AlbumSinger, 0, len(NewAlbumRepository().albumMap)) // 本当は*
 	singers := make([]model.Singer, 0, len(NewSingerRepository().singerMap))
 
 	var albumSingers = []model.AlbumSinger{}
@@ -75,7 +55,7 @@ func (r *albumRepository) GetAll(ctx context.Context) ([]*model.Album, error) {
 			// idが同じであれば追加
 			if int(s.SingerID) == int(singersValue.ID) {
 				albumSingers = append(albumSingers, model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
-				albumSinger = append(albumSinger, model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
+				albumSinger = append(albumSinger, &model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
 			}
 		}
 		albums = append(albums, s)
@@ -95,31 +75,31 @@ func (r *albumRepository) GetAll(ctx context.Context) ([]*model.Album, error) {
 	// シンプルにalbumSingerっていう配列に追加する
 	// albumSinger = append(albumSinger, {albumSin*NewAlbumSingerRepository().albumSingerMap[ID]})
 	fmt.Println(albums[1].ID)
-	return albums, nil
-	// return albumSinger, nil
+	// return albums, nil
+	return albumSinger, nil
 }
 
-func (r *albumRepository) Get(ctx context.Context, id model.AlbumID) (*model.Album, error) {
+func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*model.Album, error) {
 	r.RLock()
 	defer r.RUnlock()
 
-	album, ok := r.albumMap[id]
+	album, ok := NewAlbumRepository().albumMap[id]
 	if !ok {
 		return nil, errors.New("not found")
 	}
 	return album, nil
 }
 
-func (r *albumRepository) Add(ctx context.Context, album *model.Album) error {
+func (r *albumSingerRepository) Add(ctx context.Context, album *model.Album) error {
 	r.Lock()
-	r.albumMap[album.ID] = album
+	NewAlbumRepository().albumMap[album.ID] = album
 	r.Unlock()
 	return nil
 }
 
-func (r *albumRepository) Delete(ctx context.Context, id model.AlbumID) error {
+func (r *albumSingerRepository) Delete(ctx context.Context, id model.AlbumID) error {
 	r.Lock()
-	delete(r.albumMap, id)
+	delete(NewAlbumRepository().albumMap, id)
 	r.Unlock()
 	return nil
 }
