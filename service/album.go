@@ -7,6 +7,7 @@ import (
 	"github.com/pulse227/server-recruit-challenge-sample/repository"
 )
 
+// service, controllerで実装されるインターフェース
 type AlbumService interface {
 	GetAlbumListService(ctx context.Context) ([]*model.Album, error)
 	GetAlbumService(ctx context.Context, albumID model.AlbumID) (*model.Album, error)
@@ -20,6 +21,7 @@ type albumService struct {
 
 var _ AlbumService = (*albumService)(nil)
 
+// 初期化 → 2つのインターフェースを引数に
 func NewAlbumService(albumRepository repository.AlbumRepository) *albumService {
 	return &albumService{albumRepository: albumRepository}
 }

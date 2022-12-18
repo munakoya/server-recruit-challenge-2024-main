@@ -6,6 +6,7 @@ import (
 	"github.com/pulse227/server-recruit-challenge-sample/model"
 )
 
+// インターフェース → memorydb, serviceでオーバーライド？実装される
 type AlbumRepository interface {
 	GetAll(ctx context.Context) ([]*model.Album, error)
 	Get(ctx context.Context, id model.AlbumID) (*model.Album, error)

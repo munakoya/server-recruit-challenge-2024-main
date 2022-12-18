@@ -15,11 +15,11 @@ type albumController struct {
 	service service.AlbumService
 }
 
+// 初期化
 func NewAlbumController(s service.AlbumService) *albumController {
 	return &albumController{service: s}
 }
 
-// これ修正
 // GET /albums のハンドラー
 func (c *albumController) GetAlbumListHandler(w http.ResponseWriter, r *http.Request) {
 	albums, err := c.service.GetAlbumListService(r.Context())
