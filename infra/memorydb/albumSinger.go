@@ -10,15 +10,16 @@ import (
 	"github.com/pulse227/server-recruit-challenge-sample/repository"
 )
 
+// 排他制御とalbumSingerデータが入るフィールドを持つ構造体
 type albumSingerRepository struct {
 	sync.RWMutex
 	albumSingerMap map[model.AlbumID]*model.AlbumSinger
 }
 
-// var _ repository.AlbumRepository = (*albumRepository)(nil)
-
+// repository/albumSinger.goで定義したインターフェース → オーバーライド
 var _ repository.AlbumSingerRepository = (*albumSingerRepository)(nil)
 
+// 初期化
 func NewAlbumSingerRepository() *albumSingerRepository {
 	var initMap = map[model.AlbumID]*model.AlbumSinger{}
 	return &albumSingerRepository{
@@ -26,90 +27,53 @@ func NewAlbumSingerRepository() *albumSingerRepository {
 	}
 }
 
-// SingerIDをもとにsinger:{~~~~}ってやりたい
-// レシーバー → albumRepositoryで登録したメソッドが使用できる
+// 1. GetAll → インスタンス化したalbumSingerデータを一覧表示
 func (r *albumSingerRepository) GetAll(ctx context.Context) ([]*model.AlbumSinger, error) {
+	// 制御系
 	r.RLock()
 	defer r.RUnlock()
 
-	// SingerID → からsingerのデータを取得したい → albumSinger構造体作成
 	// make([]Tスライスの要素の型, スライスの長さ, スライスの容量)
-	albums := make([]*model.Album, 0, len(NewAlbumRepository().albumMap))
-	albumSinger := make([]*model.AlbumSinger, 0, len(NewAlbumRepository().albumMap)) // 本当は*
-	singers := make([]model.Singer, 0, len(NewSingerRepository().singerMap))
+	albumSinger := make([]*model.AlbumSinger, 0, len(NewAlbumRepository().albumMap))
+	albumSinger_test := make([]model.AlbumSinger, 0, len(NewAlbumRepository().albumMap)) // 確認用
 
-	var albumSingers = []model.AlbumSinger{}
-	// singersにsingersデータを入れる
-	for _, value := range NewSingerRepository().singerMap {
-		fmt.Println("singerValue : ", value) // singerのvalue表示 value.ID value.Name
-		singers = append(singers, *value)    // *valueで値が追加
-	}
-	fmt.Println("singers : ", singers)
-
-	// albumsにalbumデータを入れる
-	for _, s := range NewAlbumRepository().albumMap {
-		// appendでalbumsにsを追加していってる s = &{1 Alice's 1st Album 1}
-
+	// albumSingerにalbumとsingerデータを入れる
+	for _, s := range NewAlbumRepository().albumMap { // 一覧表示できない理由は初期化したマップを回しているから → 別の方法でできれば追加後も表示できる ただし、album, singerのadd必須かな？ → albumSingerにaddとdelはいらない
 		for _, singersValue := range NewSingerRepository().singerMap {
-
 			// idが同じであれば追加
 			if int(s.SingerID) == int(singersValue.ID) {
-				albumSingers = append(albumSingers, model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
 				albumSinger = append(albumSinger, &model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
+				albumSinger_test = append(albumSinger_test, model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
 			}
 		}
-		albums = append(albums, s)
-		// albumSinger = append(albumSinger, model.AlbumSinger{albums[index].ID, albums[index].Title,)
 	}
-	fmt.Println("albums : ", albums)
-	// fmt.Println("albumSinger : ", albumSinger)
-	fmt.Println("albumSingers : ", albumSingers)
 	fmt.Println("albumSinger : ", albumSinger)
-
-	// albumSingerにalbumsとsingersのデータを追加したい
-	// for index, albumSingerValue := range NewAlbumSingerRepository().albumSingerMap {
-	// 	albumSingerValue.ID = albums[index].ID
-	// 	albumSingerValue.Title = albums[index].Title
-	// 	albumSingerValue.Singer = singers[index]
-	// }
-	// シンプルにalbumSingerっていう配列に追加する
-	// albumSinger = append(albumSinger, {albumSin*NewAlbumSingerRepository().albumSingerMap[ID]})
-	fmt.Println(albums[1].ID)
-	// return albums, nil
+	fmt.Println("albumSinger_test : ", albumSinger_test)
 	return albumSinger, nil
 }
 
+// 2. Get → 引数で指定されたidに該当するsingerデータを取り出す
 func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*model.AlbumSinger, error) {
+	// 制御系
 	r.RLock()
 	defer r.RUnlock()
-	album, ok := NewAlbumRepository().albumMap[id]
-	// var singer *model.Singer
-	// var albumSinger = []*model.AlbumSinger{}
-	var albumSinger *model.AlbumSinger
-
+	album, ok := NewAlbumRepository().albumMap[id] // 初期化マップ → 追加後のマップにアクセスするように
+	var albumSinger *model.AlbumSinger             // 指定したidの要素のみ → スライスでない
 	if !ok {
 		return nil, errors.New("not found")
 	}
-	for _, singerValue := range NewSingerRepository().singerMap {
+	for _, singerValue := range NewSingerRepository().singerMap { // 上と同様
 		if singerValue.ID == album.SingerID {
 			// idが等しいsingerデータを取り出し
-			// singer = &model.Singer{ID: singerValue.ID, Name: singerValue.Name}
 			albumSinger = &model.AlbumSinger{ID: album.ID, Title: album.Title, Singer: *singerValue}
 		}
 	}
 	return albumSinger, nil
 }
 
-func (r *albumSingerRepository) Add(ctx context.Context, album *model.Album) error {
-	r.Lock()
-	NewAlbumRepository().albumMap[album.ID] = album
-	r.Unlock()
-	return nil
-}
-
-func (r *albumSingerRepository) Delete(ctx context.Context, id model.AlbumID) error {
-	r.Lock()
-	delete(NewAlbumRepository().albumMap, id)
-	r.Unlock()
-	return nil
-}
+// TODO
+/*
+addされたもの、deleteされたものを一覧表示に反映させる
+→ range mapの部分 → 初期化してるものではなく、追加されているmapを指定
+albumSingerは、albumsとsingersの両方のaddで表示 → どちらかだけの追加で表示できないっていうのは考慮しなくていい
+*/

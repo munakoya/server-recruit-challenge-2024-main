@@ -9,6 +9,5 @@ import (
 type AlbumSingerRepository interface {
 	GetAll(ctx context.Context) ([]*model.AlbumSinger, error)
 	Get(ctx context.Context, id model.AlbumID) (*model.AlbumSinger, error)
-	Add(ctx context.Context, album *model.Album) error
-	Delete(ctx context.Context, id model.AlbumID) error
+	// addとdeleteは使わない
 }

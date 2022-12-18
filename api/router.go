@@ -1,7 +1,6 @@
 package api
 
-// ルーティング
-
+// 初期化とルーティング？
 import (
 	"net/http"
 
@@ -13,12 +12,12 @@ import (
 )
 
 func NewRouter() *mux.Router {
-	// この3つ
-	// repository → ?
-	singerRepo := memorydb.NewSingerRepository() // singerデータを代入
-	// service → ?
-	singerService := service.NewSingerService(singerRepo) // singerServiceにsingerデータがセットされる
-	// controller → ?
+	// repository service controllerの3つ
+	// model.singerをインスタンス化 初期化
+	singerRepo := memorydb.NewSingerRepository()
+	// 初期化処理？
+	singerService := service.NewSingerService(singerRepo)
+	// 初期化
 	singerController := controller.NewSingerController(singerService)
 
 	// アルバムデータの初期化？
@@ -33,22 +32,21 @@ func NewRouter() *mux.Router {
 
 	r := mux.NewRouter()
 
+	// controllo/singersに定義された関数の実行
 	r.HandleFunc("/singers", singerController.GetSingerListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/singers/{id:[0-9]+}", singerController.GetSingerDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/singers", singerController.PostSingerHandler).Methods(http.MethodPost)
 	r.HandleFunc("/singers/{id:[0-9]+}", singerController.DeleteSingerHandler).Methods(http.MethodDelete)
 
 	// ここにalbumsのルーティング追加されるはず
-	// r.HandleFunc("/albums", albumController.GetAlbumListHandler).Methods(http.MethodGet)
-	// r.HandleFunc("/albums/{id:[0-9]+}", albumController.GetAlbumDetailHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albums", albumController.GetAlbumListHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albums/{id:[0-9]+}", albumController.GetAlbumDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/albums", albumController.PostAlbumHandler).Methods(http.MethodPost)
 	r.HandleFunc("/albums/{id:[0-9]+}", albumController.DeleteAlbumHandler).Methods(http.MethodDelete)
 
 	// ここにalbumsのルーティング追加されるはず
-	r.HandleFunc("/albums", albumSingerController.GetAlbumSingerListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/albums/{id:[0-9]+}", albumSingerController.GetAlbumSingerDetailHandler).Methods(http.MethodGet)
-	r.HandleFunc("/albumSingers", albumSingerController.PostAlbumSingerHandler).Methods(http.MethodPost)
-	r.HandleFunc("/albumSingers/{id:[0-9]+}", albumSingerController.DeleteAlbumSingerHandler).Methods(http.MethodDelete)
+	r.HandleFunc("/albumSinger", albumSingerController.GetAlbumSingerListHandler).Methods(http.MethodGet)
+	r.HandleFunc("/albumSinger/{id:[0-9]+}", albumSingerController.GetAlbumSingerDetailHandler).Methods(http.MethodGet)
 
 	r.Use(middleware.LoggingMiddleware)
 
