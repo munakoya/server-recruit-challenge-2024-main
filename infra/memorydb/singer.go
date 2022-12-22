@@ -18,6 +18,8 @@ type singerRepository struct {
 // repository/singer.goで定義したインターフェース → オーバーライドして実装？
 var _ repository.SingerRepository = (*singerRepository)(nil)
 
+var globalSinger map[model.SingerID]*model.Singer
+
 // model.singerをインスタンス化 初期化
 func NewSingerRepository() *singerRepository {
 	var initMap = map[model.SingerID]*model.Singer{
@@ -27,6 +29,7 @@ func NewSingerRepository() *singerRepository {
 		4: {ID: 4, Name: "Daisy"},
 		5: {ID: 5, Name: "Ellen"},
 	}
+	// globalSinger = NewSingerRepository().singerMap
 
 	return &singerRepository{
 		singerMap: initMap,
@@ -64,6 +67,7 @@ func (r *singerRepository) Get(ctx context.Context, id model.SingerID) (*model.S
 func (r *singerRepository) Add(ctx context.Context, singer *model.Singer) error {
 	r.Lock() // 書き込みロック → このメソッドが実行されるとロック → 処理が終わると解除
 	r.singerMap[singer.ID] = singer
+	globalSinger = r.singerMap
 	r.Unlock()
 	return nil
 }
@@ -72,6 +76,7 @@ func (r *singerRepository) Add(ctx context.Context, singer *model.Singer) error 
 func (r *singerRepository) Delete(ctx context.Context, id model.SingerID) error {
 	r.Lock()
 	delete(r.singerMap, id)
+	globalSinger = r.singerMap
 	r.Unlock()
 	return nil
 }
