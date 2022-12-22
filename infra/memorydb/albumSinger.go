@@ -77,10 +77,3 @@ func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*mod
 	}
 	return albumSinger, nil
 }
-
-// TODO
-/*
-addされたもの、deleteされたものを一覧表示に反映させる
-→ range mapの部分 → 初期化してるものではなく、追加されているmapを指定
-albumSingerは、albumsとsingersの両方のaddで表示 → どちらかだけの追加で表示できないっていうのは考慮しなくていい
-*/
