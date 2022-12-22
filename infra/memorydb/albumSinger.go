@@ -22,6 +22,9 @@ var _ repository.AlbumSingerRepository = (*albumSingerRepository)(nil)
 // 初期化
 func NewAlbumSingerRepository() *albumSingerRepository {
 	var initMap = map[model.AlbumID]*model.AlbumSinger{}
+	// 初期化
+	globalAlbum = NewAlbumRepository().albumMap
+	globalSinger = NewSingerRepository().singerMap
 	return &albumSingerRepository{
 		albumSingerMap: initMap,
 	}
@@ -38,8 +41,8 @@ func (r *albumSingerRepository) GetAll(ctx context.Context) ([]*model.AlbumSinge
 	albumSinger_test := make([]model.AlbumSinger, 0, len(NewAlbumRepository().albumMap)) // 確認用
 
 	// albumSingerにalbumとsingerデータを入れる
-	for _, s := range NewAlbumRepository().albumMap { // 一覧表示できない理由は初期化したマップを回しているから → 別の方法でできれば追加後も表示できる ただし、album, singerのadd必須かな？ → albumSingerにaddとdelはいらない
-		for _, singersValue := range NewSingerRepository().singerMap {
+	for _, s := range globalAlbum { // 一覧表示できない理由は初期化したマップを回しているから → 別の方法でできれば追加後も表示できる ただし、album, singerのadd必須かな？ → albumSingerにaddとdelはいらない
+		for _, singersValue := range globalSinger {
 			// idが同じであれば追加
 			if int(s.SingerID) == int(singersValue.ID) {
 				albumSinger = append(albumSinger, &model.AlbumSinger{ID: s.ID, Title: s.Title, Singer: model.Singer{ID: singersValue.ID, Name: singersValue.Name}})
@@ -47,8 +50,12 @@ func (r *albumSingerRepository) GetAll(ctx context.Context) ([]*model.AlbumSinge
 			}
 		}
 	}
+
 	fmt.Println("albumSinger : ", albumSinger)
 	fmt.Println("albumSinger_test : ", albumSinger_test)
+	fmt.Println("init_albums : ", NewAlbumRepository().albumMap)
+	// リアルタイムのアルバムが見たい
+	fmt.Println("albums : ", globalAlbum)
 	return albumSinger, nil
 }
 
@@ -57,12 +64,12 @@ func (r *albumSingerRepository) Get(ctx context.Context, id model.AlbumID) (*mod
 	// 制御系
 	r.RLock()
 	defer r.RUnlock()
-	album, ok := NewAlbumRepository().albumMap[id] // 初期化マップ → 追加後のマップにアクセスするように
-	var albumSinger *model.AlbumSinger             // 指定したidの要素のみ → スライスでない
+	album, ok := globalAlbum[id]       // 初期化マップ → 追加後のマップにアクセスするように
+	var albumSinger *model.AlbumSinger // 指定したidの要素のみ → スライスでない
 	if !ok {
 		return nil, errors.New("not found")
 	}
-	for _, singerValue := range NewSingerRepository().singerMap { // 上と同様
+	for _, singerValue := range globalSinger { // 上と同様
 		if singerValue.ID == album.SingerID {
 			// idが等しいsingerデータを取り出し
 			albumSinger = &model.AlbumSinger{ID: album.ID, Title: album.Title, Singer: *singerValue}

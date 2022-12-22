@@ -3,7 +3,6 @@ package memorydb
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/pulse227/server-recruit-challenge-sample/model"
@@ -15,6 +14,8 @@ type albumRepository struct {
 	albumMap     map[model.AlbumID]*model.Album // キーが AlbumID 値がmodel.Album のマップ
 }
 
+var globalAlbum map[model.AlbumID]*model.Album
+
 // repository/album.goで定義したインターフェース
 var _ repository.AlbumRepository = (*albumRepository)(nil)
 
@@ -25,6 +26,8 @@ func NewAlbumRepository() *albumRepository {
 		2: {ID: 2, Title: "Alice's 2nd Album", SingerID: 1},
 		3: {ID: 3, Title: "Bella's 1st Album", SingerID: 2},
 	}
+	// globalAlbum = initMap
+	// globalSinger = NewSingerRepository().singerMap
 
 	return &albumRepository{
 		albumMap: initMap,
@@ -45,7 +48,6 @@ func (r *albumRepository) GetAll(ctx context.Context) ([]*model.Album, error) {
 		// appendでalbumsにsを追加していってる s = &{1 Alice's 1st Album 1}
 		albums = append(albums, s)
 	}
-	fmt.Println("albums : ", albums)
 	return albums, nil
 }
 
@@ -65,6 +67,7 @@ func (r *albumRepository) Get(ctx context.Context, id model.AlbumID) (*model.Alb
 func (r *albumRepository) Add(ctx context.Context, album *model.Album) error {
 	r.Lock()
 	r.albumMap[album.ID] = album
+	globalAlbum = r.albumMap
 	r.Unlock()
 	return nil
 }
@@ -73,6 +76,7 @@ func (r *albumRepository) Add(ctx context.Context, album *model.Album) error {
 func (r *albumRepository) Delete(ctx context.Context, id model.AlbumID) error {
 	r.Lock()
 	delete(r.albumMap, id)
+	globalAlbum = r.albumMap
 	r.Unlock()
 	return nil
 }
