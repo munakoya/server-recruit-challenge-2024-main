@@ -41,7 +41,7 @@ func (r *albumSingerRepository) GetAll(ctx context.Context) ([]*model.AlbumSinge
 	albumSinger_test := make([]model.AlbumSinger, 0, len(NewAlbumRepository().albumMap)) // 確認用
 
 	// albumSingerにalbumとsingerデータを入れる
-	for _, s := range globalAlbum { // 一覧表示できない理由は初期化したマップを回しているから → 別の方法でできれば追加後も表示できる ただし、album, singerのadd必須かな？ → albumSingerにaddとdelはいらない
+	for _, s := range globalAlbum { // NewAlbumSinger~で初期化 or album, singerのaddで更新されたglobalAlbumが入る
 		for _, singersValue := range globalSinger {
 			// idが同じであれば追加
 			if int(s.SingerID) == int(singersValue.ID) {
