@@ -1,0 +1,14 @@
+・課題4のようなデータ操作に関しての機能追加・変更があった際にrepository, memory, serviceなど、変更が必要なファイルが多い
+
+・curl -X POST -d '{"id":10,"title":"Chris 1st","singer_id":3}' http://localhost:8888/albums のようにアルバムに新規アルバムデータを
+追加する際に、singer_idがsingerのidにないとalbumsにアクセスしても表示されない点
+→ singer不明のアルバムは表示されない
+
+・singersにアクセスした際にアーティストごとのアルバムも表示する
+歌手を取得するAPIでは、アルバムの情報も付加するように改修
+→ model/singer.goを
+type Singer struct {
+	ID   SingerID `json:"id"`
+	Name string   `json:"name"`
+    Album Album   `json:"album"`
+}

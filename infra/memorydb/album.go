@@ -26,9 +26,6 @@ func NewAlbumRepository() *albumRepository {
 		2: {ID: 2, Title: "Alice's 2nd Album", SingerID: 1},
 		3: {ID: 3, Title: "Bella's 1st Album", SingerID: 2},
 	}
-	// globalAlbum = initMap
-	// globalSinger = NewSingerRepository().singerMap
-
 	return &albumRepository{
 		albumMap: initMap,
 	}
@@ -67,6 +64,7 @@ func (r *albumRepository) Get(ctx context.Context, id model.AlbumID) (*model.Alb
 func (r *albumRepository) Add(ctx context.Context, album *model.Album) error {
 	r.Lock()
 	r.albumMap[album.ID] = album
+	// 更新
 	globalAlbum = r.albumMap
 	r.Unlock()
 	return nil
@@ -76,6 +74,7 @@ func (r *albumRepository) Add(ctx context.Context, album *model.Album) error {
 func (r *albumRepository) Delete(ctx context.Context, id model.AlbumID) error {
 	r.Lock()
 	delete(r.albumMap, id)
+	// 更新
 	globalAlbum = r.albumMap
 	r.Unlock()
 	return nil
